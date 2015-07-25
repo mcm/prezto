@@ -5,9 +5,41 @@
 #   Sorin Ionescu <sorin.ionescu@gmail.com>
 #
 
+which powerline-daemon > /dev/null && powerline-daemon -q > /dev/null
+export LANG="en_US.UTF-8"
+
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
-# Customize to your needs...
+if [ -f "$HOME/.gpg-agent-info" ]; then
+    source $HOME/.gpg-agent-info 2> /dev/null
+
+    export SSH_AUTH_SOCK
+    export GPG_TTY="$(tty)"
+
+    function _gpg-agent-update-tty {
+        gpg-connect-agent UPDATESTARTUPTTY /bye >/dev/null
+    }
+    add-zsh-hook preexec _gpg-agent-update-tty
+
+    if [[ -n "$SSH_CONNECTION" ]]; then
+        export PINENTRY_USER_DATA='USE_CURSES=1'
+    fi
+fi
+
+unsetopt SHARE_HISTORY
+unsetopt INC_APPEND_HISTORY
+setopt APPEND_HISTORY
+
+alias gpg=gpg2
+alias gpgfull="gpg2 --homedir=~/dot-files/.gnupg-full"
+which hub > /dev/null && alias git=hub
+
+if [ -f "$HOME/git/hurricane/machinae/machinae.yml" ]; then
+    export MACHINAE_CONFIG=$HOME/git/hurricane/machinae/machinae.yml
+fi
+
+BASE16_SHELL="$HOME/dot-files/base16-shell/base16-tomorrow.dark.sh"
+[[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
